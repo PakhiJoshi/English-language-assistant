@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Language Assistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        h2 {
+            text-align: center;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            resize: vertical;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        select, button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 1em;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button {
+            background-color: #0078d7;
+            color: white;
+            border: none;
+        }
+
+        button:hover {
+            background-color: #005bb5;
+        }
+
+        .output {
+            padding: 10px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-height: 50px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>English Language Assistant</h1>
+        <h2>AI Language Assistant</h2>
+
+        <h3>Summarize Text</h3>
+        <textarea id="summarizeInput" placeholder="Enter text to summarize..."></textarea>
+        <button onclick="summarizeText()">Summarize</button>
+        <div class="output" id="summaryOutput"></div>
+
+        <h3>Translate Text</h3>
+        <textarea id="translateInput" placeholder="Enter text to translate..."></textarea>
+        <select id="languageSelect">
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+        </select>
+        <button onclick="translateText()">Translate</button>
+        <div class="output" id="translationOutput"></div>
+
+        <h3>Check Grammar</h3>
+        <textarea id="grammarInput" placeholder="Enter text to check grammar..."></textarea>
+        <button onclick="checkGrammar()">Check Grammar</button>
+        <div class="output" id="grammarOutput"></div>
+    </div>
+
+    <script>
+        const apiUrl = "http://127.0.0.1:5000";
+
+        async function summarizeText() {
+            const text = document.getElementById("summarizeInput").value;
+            const response = await fetch(`${apiUrl}/summarize`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text })
+            });
+            const data = await response.json();
+            document.getElementById("summaryOutput").textContent = data.summary || data.error;
+        }
+
+        async function translateText() {
+            const text = document.getElementById("translateInput").value;
+            const targetLang = document.getElementById("languageSelect").value;
+            const response = await fetch(`${apiUrl}/translate`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text, target_lang: targetLang })
+            });
+            const data = await response.json();
+            document.getElementById("translationOutput").textContent = data.translated_text || data.error;
+        }
+
+        async function checkGrammar() {
+            const text = document.getElementById("grammarInput").value;
+            const response = await fetch(`${apiUrl}/check_grammar`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text })
+            });
+            const data = await response.json();
+            if (data.corrections && data.corrections.length > 0) {
+                document.getElementById("grammarOutput").textContent = data.corrections.map(c => `${c.message} (Offset: ${c.offset}, Length: ${c.length})`).join("\n");
+            } else {
+                document.getElementById("grammarOutput").textContent = "No grammar issues found.";
+            }
+        }
+    </script>
+</body>
+</html>
